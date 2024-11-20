@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dynamic Text with Multiple Markers</title>
+</head>
+<body style="margin:0px; overflow:hidden;">
+  <!-- A-Frame library -->
+  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+  <!-- AR.js library -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  
+  <!-- A-Frame scene -->
+  <a-scene embedded arjs="detectionMode: mono_and_matrix; matrixCodeType: 3x3; debugUIEnabled: false;">
+    
+    <!-- Assets for dynamic canvas -->
+    <a-assets>
+      <canvas id="dynamicCanvas" width="512" height="256"></canvas>
+    </a-assets>
+
+    <!-- Marker with ID 0 -->
+    <a-marker type="barcode" value="0" id="marker-0">
+      <a-plane id="textPlane-0" src="#dynamicCanvas" position="0 0.5 0" rotation="-90 0 0" width="2" height="1" transparent="true"></a-plane>
+      <a-cone position="0 1 0" radius-bottom="0.1" radius-top="0" height="0.3" color="red"></a-cone>
+      <a-cylinder position="0 0.7 0" radius="0.03" height="0.4" color="red"></a-cylinder>
+    </a-marker>
+
+    <!-- Marker with ID 1 -->
+    <a-marker type="barcode" value="1" id="marker-1">
+      <a-plane id="textPlane-1" src="#dynamicCanvas" position="0 0.5 0" rotation="-90 0 0" width="2" height="1" transparent="true"></a-plane>
+      <a-cone position="0 1 0" radius-bottom="0.1" radius-top="0" height="0.3" color="red"></a-cone>
+      <a-cylinder position="0 0.7 0" radius="0.03" height="0.4" color="red"></a-cylinder>
+    </a-marker>
+
+    <!-- Camera for AR -->
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    // Text content for each marker
+    const markerTexts = {
+      0: "人工知能は人間を超えるか\nディープラーニングの先にあるもの\n007.13\nMa 85",
+      1: "構造デザイン講義\n524\nN 29"
+    };
+
+    // Get the canvas and its context
+    const canvas = document.getElementById("dynamicCanvas");
+    const context = canvas.getContext("2d");
+
+    // Function to render text on the canvas
+    function renderText(text) {
+      context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+      context.fillStyle = "#000000"; // Text color
+      context.font = "30px Arial";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+
+      // Split text into lines and render each line
+      const lines = text.split("\n");
+      lines.forEach((line, index) => {
+        context.fillText(line, canvas.width / 2, canvas.height / 2 + index * 40);
+      });
+    }
+
+    // Add event listeners for each marker
+    const markers = document.querySelectorAll("a-marker");
+    markers.forEach(marker => {
+      marker.addEventListener("markerFound", () => {
+        const markerId = marker.getAttribute("value"); // Get marker ID
+        if (markerTexts[markerId]) {
+          renderText(markerTexts[markerId]); // Render text for the marker
+        } else {
+          renderText("No text assigned to this marker."); // Fallback text
+        }
+      });
+    });
+  </script>
+</body>
+</html>
